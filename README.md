@@ -1,4 +1,22 @@
-# Educational-Big-Data
+# 112-3 教育大數據
 
-### 提案討論
-[提案討論](https://docs.google.com/presentation/d/1xTuuRWgRE-FQzT9V13uF8Cx2HMUuaY9lEYQsIm1zXLI/edit?usp=sharing)
+**授課教師：** 蔡芸琤老師
+
+**姓名：** 黃宇謙
+
+**系級：** 科技系二年級
+
+## 課程筆記區
+
+## 連結區
+
+### 第一次進度報告
+
+### 第二次進度報告
+
+
+### 第三次進度報告
+
+
+## 專題連結區
+
