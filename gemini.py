@@ -13,7 +13,7 @@ def install_requirements():
         print(f"An error occurred while installing requirements: {e}")
         sys.exit(1)
 
-api_key = 'AIzaSyBwV30tJyjUL1Zk7xMA9MILOUhIDvlbpvk'
+api_key = ''
 genai.configure(api_key=api_key)
 
 def extract_text_from_pdf(pdf_file, page_numbers):
