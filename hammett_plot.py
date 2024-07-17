@@ -6,14 +6,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 import json
 
-def generate_hammett_plot(y_axis, plot_path, upload_folder):
+def generate_hammett_plot(substituents, values, y_axis_label, log_transform, upload_folder):
     # 讀取data.xlsx
     data_file = 'Table_1.xlsx'
     df_data = pd.read_excel(data_file)
     sigma_values = df_data.set_index('substituent')['σp'].to_dict()
-
-    # 讀取plot.xlsx
-    df_plot = pd.read_excel(plot_path)
 
     def plot_hammett(x_data, y_data, subs, title, xlabel, ylabel, slope, intercept, r_squared):
         plt.figure(figsize=(10, 6))
@@ -28,8 +25,8 @@ def generate_hammett_plot(y_axis, plot_path, upload_folder):
         plt.plot(x_data, slope * np.array(x_data) + intercept, color='red')
 
         # 顯示回歧線方程式及R²值
-        equation_text = f'y = {slope:.2f}x + {intercept:.2f}\n$R^2$ = {r_squared:.2f}'
-        plt.text(0.05, 0.95, equation_text, transform=plt.gca().transAxes, fontsize=12, verticalalignment='top')
+        equation_text = f'y = {slope:.2f}x + {intercept:.2f}\n$R^2$ = {r_squared:.4f}'
+        plt.text(0.05, 0.85, equation_text, transform=plt.gca().transAxes, fontsize=12, verticalalignment='top', bbox=dict(facecolor='white', alpha=0.5))
 
         plt.grid(True)
         plot_image_path = os.path.join(upload_folder, 'hammett_plot.png')
@@ -39,17 +36,14 @@ def generate_hammett_plot(y_axis, plot_path, upload_folder):
         return plot_image_path
 
     # 準備數據
-    sigma = [sigma_values[sub] for sub in df_plot['substituent']]
+    sigma = [sigma_values[sub] for sub in substituents]
     
     # 轉換數據類型
-    if y_axis == 'log_kx_kh':
-        y_data = pd.to_numeric(df_plot['log_kx_kh'], errors='coerce').tolist()
-    elif y_axis == 'kx_kh':
-        y_data = np.log10(pd.to_numeric(df_plot['kx_kh'], errors='coerce')).tolist()
-    elif y_axis == 'rate':
-        y_data = np.log10(pd.to_numeric(df_plot['rate'], errors='coerce')).tolist()
-    elif y_axis == 'pKa':
-        y_data = pd.to_numeric(df_plot['pKa'], errors='coerce').tolist()
+    y_data = pd.to_numeric(values, errors='coerce').tolist()
+    if log_transform:
+        y_data = np.log10(y_data).tolist()
+    
+    y_axis_label = f'log({y_axis_label})'
 
     # 確保sigma也是浮點數類型
     sigma = pd.to_numeric(sigma, errors='coerce').tolist()
@@ -62,12 +56,12 @@ def generate_hammett_plot(y_axis, plot_path, upload_folder):
     intercept = reg.intercept_
     r_squared = r2_score(y, reg.predict(X))
 
-    plot_image_path = plot_hammett(sigma, y_data, df_plot['substituent'].tolist(), 'Hammett Plot', 'σ', y_axis, slope, intercept, r_squared)
+    plot_image_path = plot_hammett(sigma, y_data, substituents, 'Hammett Plot', 'σ', y_axis_label, slope, intercept, r_squared)
 
     # 準備數據以JSON格式存儲
     data_json = {
-        "substituent": df_plot['substituent'].tolist(),
-        y_axis: df_plot[y_axis].tolist(),
+        "substituent": substituents,
+        y_axis_label: values,
         "σ": sigma,
         "ρ": slope,
         "R²": r_squared
