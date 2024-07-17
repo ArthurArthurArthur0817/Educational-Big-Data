@@ -1,10 +1,11 @@
+from flask import Flask, request, render_template, send_file, send_from_directory
 import os
 import subprocess
-from flask import Flask, request, render_template, send_file, send_from_directory
+import pandas as pd
 
 app = Flask(__name__)
 
-# 文件上传目录
+# 文件上傳目錄
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -25,28 +26,18 @@ def upload_files():
     for pdf_file in pdf_files:
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_file.filename)
         pdf_file.save(pdf_path)
-        pdf_paths.append(os.path.abspath(pdf_path))
+        pdf_paths.append(pdf_path)
 
     question_path = os.path.join(app.config['UPLOAD_FOLDER'], question_file.filename)
     question_file.save(question_path)
 
-    # 确认文件路径
-    print("PDF Paths:", pdf_paths)
-    print("Question Path:", os.path.abspath(question_path))
+    # 調用 mistral-7B-instruct.py
+    mistral_command = f"python mistral-7B-instruct.py {question_path} {' '.join(pdf_paths)}"
+    subprocess.run(mistral_command, shell=True)
 
-    # 调用 mistral-7B-instruct.py
-    mistral_command = ["python", "mistral-7B-instruct.py", os.path.abspath(question_path)] + pdf_paths
-    print("Running command:", mistral_command)  # 打印命令用于调试
-    mistral_result = subprocess.run(mistral_command, capture_output=True, text=True)
-    print("Mistral output:", mistral_result.stdout)
-    print("Mistral error:", mistral_result.stderr)
-
-    # 调用 gemini.py
-    gemini_command = ["python", "gemini.py"]
-    print("Running command:", gemini_command)  # 打印命令用于调试
-    gemini_result = subprocess.run(gemini_command, capture_output=True, text=True)
-    print("Gemini output:", gemini_result.stdout)
-    print("Gemini error:", gemini_result.stderr)
+    # 調用 gemini.py
+    gemini_command = "python gemini.py"
+    subprocess.run(gemini_command, shell=True)
 
     return render_template('results.html')
 
@@ -62,13 +53,20 @@ def hammett():
 @app.route('/plot', methods=['POST'])
 def plot():
     from hammett_plot import generate_hammett_plot
-    y_axis = request.form['y_axis']
-    plot_file = request.files['plot_file']
-    plot_path = os.path.join(app.config['UPLOAD_FOLDER'], plot_file.filename)
-    plot_file.save(plot_path)
 
-    image_path, output_path = generate_hammett_plot(y_axis, plot_path, app.config['UPLOAD_FOLDER'])
-
+    y_axis_label = request.form['y_axis_label']
+    log_transform = request.form['log_transform'] == 'true'
+    
+    substituents = []
+    values = []
+    for key in request.form:
+        if key.startswith('substituent'):
+            substituents.append(request.form[key])
+        elif key.startswith('value'):
+            values.append(request.form[key])
+    
+    image_path, output_path = generate_hammett_plot(substituents, values, y_axis_label, log_transform, app.config['UPLOAD_FOLDER'])
+    
     return render_template('plot_result.html', image_path=image_path, output_path=output_path)
 
 @app.route('/uploads/<filename>')
