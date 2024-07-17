@@ -13,7 +13,7 @@ def install_requirements():
         print(f"An error occurred while installing requirements: {e}")
         sys.exit(1)
 
-api_key = ''
+api_key = 'AIzaSyBwV30tJyjUL1Zk7xMA9MILOUhIDvlbpvk'
 genai.configure(api_key=api_key)
 
 def extract_text_from_pdf(pdf_file, page_numbers):
@@ -37,7 +37,7 @@ def extract_text_from_pdf(pdf_file, page_numbers):
     return text
 
 def chatting(text, instruction):
-    LAB_prompt = text + " 這是我的化學論文"
+    LAB_prompt = text + " This is my chemistry paper and data, give me a simple analysis and answer"
     final_prompt = LAB_prompt + instruction
     try:
         model = genai.GenerativeModel('gemini-1.5-pro')
