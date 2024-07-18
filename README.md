@@ -16,4 +16,6 @@
 
 
 ## 專題連結區
+[專題程式](https://github.com/ArthurArthurArthur0817/Educational-Big-Data/tree/main/Final%20Project)
+
 [專題影片連結](https://youtu.be/eci8HjQMh_I)
