@@ -14,7 +14,7 @@ import torch
 from langchain_community.vectorstores import FAISS
 import pandas as pd
 from sentence_transformers import SentenceTransformer
-from langchain_community.embeddings import HuggingFaceInstructEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
 
 # 加入從命令行參數讀取文件路徑的代碼
 question_path = sys.argv[1]
@@ -37,7 +37,7 @@ class CFG:
     PDFs_paths = pdf_paths
     Embeddings_path = './faiss_index_py'
 
-os.environ["HUGGINGFACEHUB_API_TOKEN"] = "Your HuggingFace Access Token"
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = "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"
 
 # 初始化语言模型
 llm = HuggingFaceEndpoint(
@@ -71,7 +71,7 @@ model_kwargs = {'device': 'cpu'}
 encode_kwargs = {'normalize_embeddings': True}
 
 # 创建嵌入
-embeddings = HuggingFaceInstructEmbeddings(
+embeddings = HuggingFaceEmbeddings(
     model_name=CFG.embeddings_model_repo,
     model_kwargs=model_kwargs,
     encode_kwargs=encode_kwargs
@@ -154,8 +154,8 @@ def llm_ans(query):
 
 def extract_text_after_inst(input_string):
     marker_index = input_string.find("[/INST]")
-    if marker_index != -1:
-        extracted_text = input_string[marker_index + len("[/INST]"):].strip()
+    if (marker_index != -1):
+        extracted_text = input_string[marker_index + len("[/INST]"):].trim()
         print("Extracted text: ", extracted_text)  # 添加此行
         return extracted_text
     else:
