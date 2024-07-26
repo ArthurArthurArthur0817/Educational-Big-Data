@@ -6,7 +6,7 @@ import re
 import os
 import pandas as pd
 
-api_key = 'AIzaSyBwV30tJyjUL1Zk7xMA9MILOUhIDvlbpvk'
+api_key = 'Your API KEY'
 genai.configure(api_key=api_key)
 
 UPLOADS_FOLDER = "uploads"  # 设置上传文件夹路径
